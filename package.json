@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/Racingwind/tinyapp/issues"
   },
-  "homepage": "https://github.com/Racingwind/tinyapp#readme"
+  "homepage": "https://github.com/Racingwind/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
 }
