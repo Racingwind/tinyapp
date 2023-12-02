@@ -2,6 +2,10 @@ const express = require("express");
 const app = express();
 const PORT = 8080;
 
+const generateRandomString = () => {
+  return Math.random().toString(20).substr(2, 6);
+};
+
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 
