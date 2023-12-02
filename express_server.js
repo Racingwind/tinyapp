@@ -27,12 +27,12 @@ app.get("/set", (req, res) => {
 });
 
 app.get("/fetch", (req, res) => {
-  const templateVars = { urls: urlDatabase };
-  res.send("urls_index", templateVars);
+  res.send(`a = ${a}`);
 });
 
 app.get("/urls", (req, res) => {
-  res.render(`a = ${a}`);
+  const templateVars = { urlDatabase };
+  res.render("urls_index", templateVars);
 });
 
 app.listen(PORT, () => {
