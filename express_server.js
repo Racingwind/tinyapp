@@ -59,6 +59,10 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${id}`);
 });
 
+app.get("/u/:id", (req, res) => {
+  res.redirect(`${urlDatabase[req.params.id]}`);
+});
+
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
