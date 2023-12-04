@@ -54,8 +54,9 @@ app.get("/urls/:id", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  urlDatabase[generateRandomString()] = req.body.longURL;
-  res.send("Ok");
+  id = generateRandomString();
+  urlDatabase[id] = req.body.longURL;
+  res.redirect(`/urls/${id}`);
 });
 
 app.listen(PORT, () => {
