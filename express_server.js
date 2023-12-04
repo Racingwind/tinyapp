@@ -2,17 +2,21 @@ const express = require("express");
 const app = express();
 const PORT = 8080;
 
-const generateRandomString = () => {
-  return Math.random().toString(20).substr(2, 6);
-};
-
-app.set("view engine", "ejs");
-app.use(express.urlencoded({ extended: true }));
-
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+
+const generateRandomString = () => {
+  const id = Math.random().toString(20).substr(2, 6);
+  if (urlDatabase[id]) {
+    return generateRandomString();
+  }
+  return id;
+};
+
+app.set("view engine", "ejs");
+app.use(express.urlencoded({ extended: true }));
 
 app.get("/", (req, res) => {
   res.send("Hello!");
