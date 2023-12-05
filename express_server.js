@@ -51,7 +51,6 @@ app.get("/fetch", (req, res) => {
 
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase, user: users[req.cookies["user_id"]] };
-  console.log(users[req.cookies])
   res.render("urls_index", templateVars);
 });
 
