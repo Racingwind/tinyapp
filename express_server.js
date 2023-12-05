@@ -33,6 +33,13 @@ const userLookup = (email) => {
   return null;
 };
 
+const loggedIn = (cookies) => {
+  if (cookies["user_id"]) {
+    return true;
+  }
+  return false;
+};
+
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -78,11 +85,17 @@ app.get("/u/:id", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
+  if (loggedIn(req.cookies)) {
+    return res.redirect("/urls");
+   };
   const templateVars = { user: users[req.cookies["user_id"]] };
   res.render("register", templateVars);
 });
 
 app.get("/login", (req, res) => {
+  if (loggedIn(req.cookies)) {
+   return res.redirect("/urls");
+  };
   const templateVars = { user: users[req.cookies["user_id"]] };
   res.render("login", templateVars);
 });
