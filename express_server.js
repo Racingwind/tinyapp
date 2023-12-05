@@ -105,10 +105,11 @@ app.post("/urls/:id/update", (req, res) => {
 
 app.post("/login", (req, res) => {
   user = userLookup(req.body.email);
-  if (user) {
+  if (user && user.password === req.body.password) {
     res.cookie("user_id", user.id);
+    return res.redirect("/urls");
   }
-  res.redirect("/urls");
+  res.sendStatus(400);
 });
 
 app.post("/logout", (req, res) => {
@@ -118,8 +119,7 @@ app.post("/logout", (req, res) => {
 
 app.post("/register", (req, res) => {
   if (req.body.email === "" || req.body.password === "" || userLookup(req.body.email)) {
-    res.sendStatus(400);
-    return;
+    return res.sendStatus(400);
   };
   id = generateRandomString();
   users[id] = { id, email: req.body.email, password: req.body.password };
