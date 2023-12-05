@@ -71,6 +71,9 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
+  if (!loggedIn(req.cookies)) {
+    return res.redirect("/login");
+   };
   const templateVars = { user: users[req.cookies["user_id"]] };
   res.render("urls_new", templateVars);
 });
@@ -85,7 +88,7 @@ app.get("/u/:id", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  if (loggedIn(req.cookies)) {
+  if (loggedIn(req.cookies)) { 
     return res.redirect("/urls");
    };
   const templateVars = { user: users[req.cookies["user_id"]] };
@@ -101,6 +104,10 @@ app.get("/login", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
+  if (!loggedIn(req.cookies)) {
+    res.status(401);
+    return res.send("You are not logged in!");
+   };
   id = generateRandomString();
   urlDatabase[id] = req.body.longURL;
   res.redirect(`/urls/${id}`);
