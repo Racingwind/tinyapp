@@ -84,6 +84,10 @@ app.get("/urls/:id", (req, res) => {
 });
 
 app.get("/u/:id", (req, res) => {
+  if (!urlDatabase[req.params.id]) {
+    res.status(404);
+    return res.send("Short URL ID does not exist!");
+  }
   res.redirect(`${urlDatabase[req.params.id]}`);
 });
 
