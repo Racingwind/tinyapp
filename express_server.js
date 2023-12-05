@@ -8,6 +8,14 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+const users = {
+  "dw9Uv3": {
+    id: "dw9Uv3",
+    email: "louis.k.hu@gmail.com",
+    password: "123"
+  }
+};
+
 const generateRandomString = () => {
   const id = Math.random().toString(20).substr(2, 6);
   if (urlDatabase[id]) {
@@ -88,6 +96,13 @@ app.post("/login", (req, res) => {
 
 app.post("/logout", (req, res) => {
   res.clearCookie("username");
+  res.redirect("/urls");
+});
+
+app.post("/register", (req, res) => {
+  id = generateRandomString();
+  users[id] = { id, email: req.body.email, password: req.body.password };
+  console.log(users);
   res.redirect("/urls");
 });
 
