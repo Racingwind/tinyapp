@@ -60,6 +60,11 @@ app.get("/u/:id", (req, res) => {
   res.redirect(`${urlDatabase[req.params.id]}`);
 });
 
+app.get("/register", (req, res) => {
+  const templateVars = { username: req.cookies["username"] };
+  res.render("register", templateVars);
+});
+
 app.post("/urls", (req, res) => {
   id = generateRandomString();
   urlDatabase[id] = req.body.longURL;
