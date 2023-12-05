@@ -102,6 +102,7 @@ app.post("/logout", (req, res) => {
 app.post("/register", (req, res) => {
   id = generateRandomString();
   users[id] = { id, email: req.body.email, password: req.body.password };
+  res.cookie("username", id);
   console.log(users);
   res.redirect("/urls");
 });
