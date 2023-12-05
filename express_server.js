@@ -24,6 +24,15 @@ const generateRandomString = () => {
   return id;
 };
 
+const userLookup = (email) => {
+  for (user in users) {
+    if (users[user].email === email) {
+      return users[user];
+    }
+  }
+  return null;
+};
+
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -90,12 +99,9 @@ app.post("/urls/:id/update", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  for (user in users) {
-    if (users[user].email === req.body.email) {
-      res.cookie("user_id", user);
-      res.redirect("/urls");
-      return;
-    }
+  user = userLookup(req.body.email);
+  if (user) {
+    res.cookie("user_id", user.id);
   }
   res.redirect("/urls");
 });
@@ -106,10 +112,13 @@ app.post("/logout", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
+  if (req.body.email === "" || req.body.password === "" || userLookup(req.body.email)) {
+    res.sendStatus(400);
+    return;
+  };
   id = generateRandomString();
   users[id] = { id, email: req.body.email, password: req.body.password };
   res.cookie("user_id", id);
-  console.log(users);
   res.redirect("/urls");
 });
 
