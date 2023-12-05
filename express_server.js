@@ -105,11 +105,14 @@ app.post("/urls/:id/update", (req, res) => {
 
 app.post("/login", (req, res) => {
   user = userLookup(req.body.email);
-  if (user && user.password === req.body.password) {
-    res.cookie("user_id", user.id);
-    return res.redirect("/urls");
+  if (!user) { // if user is null (cannot be found)
+    return res.sendStatus(403);
+  };
+  if (user && user.password !== req.body.password) { // if user is found and password does NOT match
+    res.sendStatus(403);
   }
-  res.sendStatus(400);
+  res.cookie("user_id", user.id); // user is found and password does match, set the user_id cookie with their id
+  return res.redirect("/urls");
 });
 
 app.post("/logout", (req, res) => {
