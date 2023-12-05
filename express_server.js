@@ -53,14 +53,19 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+app.get("/u/:id", (req, res) => {
+  res.redirect(`${urlDatabase[req.params.id]}`);
+});
+
 app.post("/urls", (req, res) => {
   id = generateRandomString();
   urlDatabase[id] = req.body.longURL;
   res.redirect(`/urls/${id}`);
 });
 
-app.get("/u/:id", (req, res) => {
-  res.redirect(`${urlDatabase[req.params.id]}`);
+app.post("/urls/:id/delete", (req, res) => {
+  delete urlDatabase[req.params.id];
+  res.redirect("/urls");
 });
 
 app.listen(PORT, () => {
