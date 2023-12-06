@@ -40,6 +40,16 @@ const loggedIn = (cookies) => {
   return false;
 };
 
+const urlsForUser = (id) => {
+  let list = {};
+  for (entry in urlDatabase) {
+    if (urlDatabase[entry].userID === id) {
+      list[entry] = urlDatabase[entry];
+    }
+  }
+  return list;
+}
+
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -66,7 +76,12 @@ app.get("/fetch", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase, user: users[req.cookies["user_id"]] };
+  if (!loggedIn(req.cookies)) {
+    res.status(401);
+    return res.send("You are not logged in!");
+  };
+  const list = urlsForUser(req.cookies["user_id"]);
+  const templateVars = { urls: list, user: users[req.cookies["user_id"]] };
   res.render("urls_index", templateVars);
 });
 
