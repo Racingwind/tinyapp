@@ -9,13 +9,13 @@ const urlDatabase = {
   "9sm5xK": { longURL: "http://www.google.com", userID: "dw9Uv3" }
 };
 
-hashedPassword = bcrypt.hashSync("123", 10);
+hashPassword = bcrypt.hashSync("123", 10);
 
 const users = {
   "dw9Uv3": {
     id: "dw9Uv3",
     email: "louis.k.hu@gmail.com",
-    password: hashedPassword
+    password: hashPassword
   }
 };
 
@@ -212,7 +212,8 @@ app.post("/register", (req, res) => {
     return res.sendStatus(400);
   };
   id = generateRandomString();
-  users[id] = { id, email: req.body.email, password: req.body.password };
+  const hashedPassword = bcrypt.hashSync(req.body.password, 10);
+  users[id] = { id, email: req.body.email, password: hashedPassword };
   res.cookie("user_id", id);
   res.redirect("/urls");
 });
