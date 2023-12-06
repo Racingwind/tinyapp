@@ -195,7 +195,8 @@ app.post("/login", (req, res) => {
   if (!user) { // if user is null (cannot be found)
     return res.sendStatus(403);
   };
-  if (user && user.password !== req.body.password) { // if user is found and password does NOT match
+  const passwordMatch = bcrypt.compareSync(req.body.password, user.password);
+  if (user && !passwordMatch) { // if user is found and password does NOT match
     return res.sendStatus(403);
   }
   res.cookie("user_id", user.id); // user is found and password does match, set the user_id cookie with their id
