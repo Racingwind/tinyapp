@@ -22,7 +22,7 @@
         <p class="card-text">
           Short URL ID: <a href="/u/<%= id %>"><%= id %></a>
         </p>
-        <form class="form-inline" action="/urls/<%= id %>/update" method="POST">
+        <form class="form-inline" action="/urls/<%= id %>" method="POST">
           <div class="form-group mb-2">
             <label for="longURL">Update URL to:</label>
             <input

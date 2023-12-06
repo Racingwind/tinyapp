@@ -90,7 +90,7 @@ app.get("/urls/new", (req, res) => {
   const id = req.cookies["user_id"];
   if (!loggedIn(id)) {
     return res.redirect("/login");
-   };
+  };
   const templateVars = { user: users[id] };
   res.render("urls_new", templateVars);
 });
@@ -100,11 +100,11 @@ app.get("/urls/:id", (req, res) => {
   if (!loggedIn(user_id)) {
     res.status(401);
     return res.send("You are not logged in!");
-   };
-   if (urlDatabase[req.params.id].userID !== user_id) { // if short url id does not match logged in user id
+  };
+  if (urlDatabase[req.params.id].userID !== user_id) { // if short url id does not match logged in user id
     res.status(401);
     return res.send("You do not have permission to view this short URL");
-   }
+  }
   const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id].longURL, user: users[user_id] };
   res.render("urls_show", templateVars);
 });
@@ -121,7 +121,7 @@ app.get("/register", (req, res) => {
   const id = req.cookies["user_id"];
   if (loggedIn(id)) { 
     return res.redirect("/urls");
-   };
+  };
   const templateVars = { user: users[id] };
   res.render("register", templateVars);
 });
@@ -140,8 +140,8 @@ app.post("/urls", (req, res) => {
   if (!loggedIn(user_id)) {
     res.status(401);
     return res.send("You are not logged in!");
-   };
-  id = generateRandomString();
+  };
+  id = generateRandomString();2
   urlDatabase[id] = { longURL: req.body.longURL, userID: user_id };
   res.redirect(`/urls/${id}`);
 });
@@ -151,7 +151,7 @@ app.post("/urls/:id/delete", (req, res) => {
   res.redirect("/urls");
 });
 
-app.post("/urls/:id/update", (req, res) => {
+app.post("/urls/:id", (req, res) => {
   urlDatabase[req.params.id].longURL = req.body.longURL;
   res.redirect("/urls");
 });
