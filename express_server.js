@@ -33,8 +33,8 @@ const userLookup = (email) => {
   return null;
 };
 
-const loggedIn = (cookies) => {
-  if (cookies["user_id"]) {
+const loggedIn = (userID) => {
+  if (userID) {
     return true;
   }
   return false;
@@ -76,33 +76,36 @@ app.get("/fetch", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  if (!loggedIn(req.cookies)) {
+  const id = req.cookies["user_id"];
+  if (!loggedIn(id)) {
     res.status(401);
     return res.send("You are not logged in!");
   };
-  const list = urlsForUser(req.cookies["user_id"]);
-  const templateVars = { urls: list, user: users[req.cookies["user_id"]] };
+  const list = urlsForUser(id);
+  const templateVars = { urls: list, user: users[id] };
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  if (!loggedIn(req.cookies)) {
+  const id = req.cookies["user_id"];
+  if (!loggedIn(id)) {
     return res.redirect("/login");
    };
-  const templateVars = { user: users[req.cookies["user_id"]] };
+  const templateVars = { user: users[id] };
   res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:id", (req, res) => {
-  if (!loggedIn(req.cookies)) {
+  const user_id = req.cookies["user_id"];
+  if (!loggedIn(user_id)) {
     res.status(401);
     return res.send("You are not logged in!");
    };
-   if (urlDatabase[req.params.id].userID !== req.cookies["user_id"]) { // if short url id does not match logged in user id
+   if (urlDatabase[req.params.id].userID !== user_id) { // if short url id does not match logged in user id
     res.status(401);
     return res.send("You do not have permission to view this short URL");
    }
-  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id].longURL, user: users[req.cookies["user_id"]] };
+  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id].longURL, user: users[user_id] };
   res.render("urls_show", templateVars);
 });
 
@@ -115,28 +118,31 @@ app.get("/u/:id", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  if (loggedIn(req.cookies)) { 
+  const id = req.cookies["user_id"];
+  if (loggedIn(id)) { 
     return res.redirect("/urls");
    };
-  const templateVars = { user: users[req.cookies["user_id"]] };
+  const templateVars = { user: users[id] };
   res.render("register", templateVars);
 });
 
 app.get("/login", (req, res) => {
-  if (loggedIn(req.cookies)) {
+  const id = req.cookies["user_id"];
+  if (loggedIn(id)) {
    return res.redirect("/urls");
   };
-  const templateVars = { user: users[req.cookies["user_id"]] };
+  const templateVars = { user: users[id] };
   res.render("login", templateVars);
 });
 
 app.post("/urls", (req, res) => {
-  if (!loggedIn(req.cookies)) {
+  const user_id = req.cookies["user_id"];
+  if (!loggedIn(user_id)) {
     res.status(401);
     return res.send("You are not logged in!");
    };
   id = generateRandomString();
-  urlDatabase[id] = { longURL: req.body.longURL, userID: req.cookies["user_id"]};
+  urlDatabase[id] = { longURL: req.body.longURL, userID: user_id };
   res.redirect(`/urls/${id}`);
 });
 
