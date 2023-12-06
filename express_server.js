@@ -33,13 +33,6 @@ const userLookup = (email) => {
   return null;
 };
 
-const loggedIn = (userID) => {
-  if (userID) {
-    return true;
-  }
-  return false;
-};
-
 const urlsForUser = (id) => {
   let list = {};
   for (entry in urlDatabase) {
@@ -48,6 +41,23 @@ const urlsForUser = (id) => {
     }
   }
   return list;
+};
+
+const MatchurlIdUserId = (req) => {
+  if (urlDatabase[req.params.id].userID !== req.cookies["user_id"]) {
+    return true;
+  }
+  return false;
+};
+
+const sendNotLoggedIn = (res) => {
+  res.status(401);
+  return res.send("You are not logged in!");
+};
+
+const sendUnauthorized = (res) => {
+  res.status(401);
+  return res.send("You are not authorized to view or change this short URL");
 }
 
 app.set("view engine", "ejs");
@@ -77,9 +87,8 @@ app.get("/fetch", (req, res) => {
 
 app.get("/urls", (req, res) => {
   const id = req.cookies["user_id"];
-  if (!loggedIn(id)) {
-    res.status(401);
-    return res.send("You are not logged in!");
+  if (!id) {
+    return sendNotLoggedIn(res);
   };
   const list = urlsForUser(id);
   const templateVars = { urls: list, user: users[id] };
@@ -88,7 +97,7 @@ app.get("/urls", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   const id = req.cookies["user_id"];
-  if (!loggedIn(id)) {
+  if (!id) {
     return res.redirect("/login");
   };
   const templateVars = { user: users[id] };
@@ -97,13 +106,11 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls/:id", (req, res) => {
   const user_id = req.cookies["user_id"];
-  if (!loggedIn(user_id)) {
-    res.status(401);
-    return res.send("You are not logged in!");
+  if (!user_id) {
+    return sendNotLoggedIn(res);
   };
   if (urlDatabase[req.params.id].userID !== user_id) { // if short url id does not match logged in user id
-    res.status(401);
-    return res.send("You do not have permission to view this short URL");
+    return sendUnauthorized(res);
   }
   const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id].longURL, user: users[user_id] };
   res.render("urls_show", templateVars);
@@ -119,7 +126,7 @@ app.get("/u/:id", (req, res) => {
 
 app.get("/register", (req, res) => {
   const id = req.cookies["user_id"];
-  if (loggedIn(id)) { 
+  if (id) { 
     return res.redirect("/urls");
   };
   const templateVars = { user: users[id] };
@@ -128,7 +135,7 @@ app.get("/register", (req, res) => {
 
 app.get("/login", (req, res) => {
   const id = req.cookies["user_id"];
-  if (loggedIn(id)) {
+  if (id) {
    return res.redirect("/urls");
   };
   const templateVars = { user: users[id] };
@@ -137,9 +144,8 @@ app.get("/login", (req, res) => {
 
 app.post("/urls", (req, res) => {
   const user_id = req.cookies["user_id"];
-  if (!loggedIn(user_id)) {
-    res.status(401);
-    return res.send("You are not logged in!");
+  if (!user_id) {
+    return sendNotLoggedIn(res);
   };
   id = generateRandomString();2
   urlDatabase[id] = { longURL: req.body.longURL, userID: user_id };
@@ -147,11 +153,17 @@ app.post("/urls", (req, res) => {
 });
 
 app.post("/urls/:id/delete", (req, res) => {
+  if (MatchurlIdUserId(req)) {
+    return sendUnauthorized(res);
+  }
   delete urlDatabase[req.params.id];
   res.redirect("/urls");
 });
 
 app.post("/urls/:id", (req, res) => {
+  if (MatchurlIdUserId(req)) {
+    return sendUnauthorized(res);
+  }
   urlDatabase[req.params.id].longURL = req.body.longURL;
   res.redirect("/urls");
 });
