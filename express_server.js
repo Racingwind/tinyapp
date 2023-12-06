@@ -44,7 +44,7 @@ const urlsForUser = (id) => {
 };
 
 const matchUrlIdUserId = (req) => {
-  if (urlDatabase[req.params.id].userID !== req.cookies["user_id"]) {
+  if (urlDatabase[req.params.id].userID === req.cookies["user_id"]) {
     return true;
   }
   return false;
@@ -166,7 +166,7 @@ app.post("/urls/:id/delete", (req, res) => {
   if (!urlDatabase[req.params.id]) {
     return sendShortURLNotExist(res);
   }
-  if (matchUrlIdUserId(req)) {
+  if (!matchUrlIdUserId(req)) {
     return sendUnauthorized(res);
   }
   delete urlDatabase[req.params.id];
@@ -180,7 +180,7 @@ app.post("/urls/:id", (req, res) => {
   if (!urlDatabase[req.params.id]) {
     return sendShortURLNotExist(res);
   }
-  if (matchUrlIdUserId(req)) {
+  if (!matchUrlIdUserId(req)) {
     return sendUnauthorized(res);
   }
   urlDatabase[req.params.id].longURL = req.body.longURL;
