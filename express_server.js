@@ -4,8 +4,8 @@ const app = express();
 const PORT = 8080;
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userID: "dw9Uv3" },
+  "9sm5xK": { longURL: "http://www.google.com", userID: "dw9Uv3" }
 };
 
 const users = {
@@ -79,7 +79,7 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:id", (req, res) => {
-  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id], user: users[req.cookies["user_id"]] };
+  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id].longURL, user: users[req.cookies["user_id"]] };
   res.render("urls_show", templateVars);
 });
 
@@ -88,7 +88,7 @@ app.get("/u/:id", (req, res) => {
     res.status(404);
     return res.send("Short URL ID does not exist!");
   }
-  res.redirect(`${urlDatabase[req.params.id]}`);
+  res.redirect(`${urlDatabase[req.params.id].longURL}`);
 });
 
 app.get("/register", (req, res) => {
@@ -113,7 +113,7 @@ app.post("/urls", (req, res) => {
     return res.send("You are not logged in!");
    };
   id = generateRandomString();
-  urlDatabase[id] = req.body.longURL;
+  urlDatabase[id] = { longURL: req.body.longURL, userID: req.cookies["user_id"]};
   res.redirect(`/urls/${id}`);
 });
 
@@ -123,7 +123,7 @@ app.post("/urls/:id/delete", (req, res) => {
 });
 
 app.post("/urls/:id/update", (req, res) => {
-  urlDatabase[req.params.id] = req.body.longURL;
+  urlDatabase[req.params.id].longURL = req.body.longURL;
   res.redirect("/urls");
 });
 
