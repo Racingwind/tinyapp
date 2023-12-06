@@ -98,6 +98,10 @@ app.get("/urls/:id", (req, res) => {
     res.status(401);
     return res.send("You are not logged in!");
    };
+   if (urlDatabase[req.params.id].userID !== req.cookies["user_id"]) { // if short url id does not match logged in user id
+    res.status(401);
+    return res.send("You do not have permission to view this short URL");
+   }
   const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id].longURL, user: users[req.cookies["user_id"]] };
   res.render("urls_show", templateVars);
 });
