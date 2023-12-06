@@ -43,7 +43,7 @@ const urlsForUser = (id) => {
   return list;
 };
 
-const MatchurlIdUserId = (req) => {
+const matchUrlIdUserId = (req) => {
   if (urlDatabase[req.params.id].userID !== req.cookies["user_id"]) {
     return true;
   }
@@ -58,7 +58,12 @@ const sendNotLoggedIn = (res) => {
 const sendUnauthorized = (res) => {
   res.status(401);
   return res.send("You are not authorized to view or change this short URL");
-}
+};
+
+const sendShortURLNotExist = (res) => {
+  res.status(404);
+  return res.send("Short URL ID does not exist!");
+};
 
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
@@ -108,7 +113,10 @@ app.get("/urls/:id", (req, res) => {
   const user_id = req.cookies["user_id"];
   if (!user_id) {
     return sendNotLoggedIn(res);
-  };
+  }
+  if (!urlDatabase[req.params.id]) {
+    return sendShortURLNotExist(res);
+  }
   if (urlDatabase[req.params.id].userID !== user_id) { // if short url id does not match logged in user id
     return sendUnauthorized(res);
   }
@@ -118,8 +126,7 @@ app.get("/urls/:id", (req, res) => {
 
 app.get("/u/:id", (req, res) => {
   if (!urlDatabase[req.params.id]) {
-    res.status(404);
-    return res.send("Short URL ID does not exist!");
+    return sendShortURLNotExist(res);
   }
   res.redirect(`${urlDatabase[req.params.id].longURL}`);
 });
@@ -153,7 +160,10 @@ app.post("/urls", (req, res) => {
 });
 
 app.post("/urls/:id/delete", (req, res) => {
-  if (MatchurlIdUserId(req)) {
+  if (!urlDatabase[req.params.id]) {
+    return sendShortURLNotExist(res);
+  }
+  if (matchUrlIdUserId(req)) {
     return sendUnauthorized(res);
   }
   delete urlDatabase[req.params.id];
@@ -161,7 +171,10 @@ app.post("/urls/:id/delete", (req, res) => {
 });
 
 app.post("/urls/:id", (req, res) => {
-  if (MatchurlIdUserId(req)) {
+  if (!urlDatabase[req.params.id]) {
+    return sendShortURLNotExist(res);
+  }
+  if (matchUrlIdUserId(req)) {
     return sendUnauthorized(res);
   }
   urlDatabase[req.params.id].longURL = req.body.longURL;
