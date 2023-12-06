@@ -160,6 +160,9 @@ app.post("/urls", (req, res) => {
 });
 
 app.post("/urls/:id/delete", (req, res) => {
+  if (!req.cookies["user_id"]) {
+    return sendNotLoggedIn(res);
+  }  
   if (!urlDatabase[req.params.id]) {
     return sendShortURLNotExist(res);
   }
@@ -171,6 +174,9 @@ app.post("/urls/:id/delete", (req, res) => {
 });
 
 app.post("/urls/:id", (req, res) => {
+  if (!req.cookies["user_id"]) {
+    return sendNotLoggedIn(res);
+  }
   if (!urlDatabase[req.params.id]) {
     return sendShortURLNotExist(res);
   }
