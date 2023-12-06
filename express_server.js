@@ -47,7 +47,7 @@ const urlsForUser = (id) => {
 };
 
 const matchUrlIdUserId = (req) => {
-  if (urlDatabase[req.params.id].userID === req.cookies["user_id"]) {
+  if (urlDatabase[req.params.id].userID === req.session.user_id) {
     return true;
   }
   return false;
