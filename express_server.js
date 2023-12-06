@@ -1,5 +1,6 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
+const bcrypt = require("bcryptjs");
 const app = express();
 const PORT = 8080;
 
@@ -8,11 +9,13 @@ const urlDatabase = {
   "9sm5xK": { longURL: "http://www.google.com", userID: "dw9Uv3" }
 };
 
+hashedPassword = bcrypt.hashSync("123", 10);
+
 const users = {
   "dw9Uv3": {
     id: "dw9Uv3",
     email: "louis.k.hu@gmail.com",
-    password: "123"
+    password: hashedPassword
   }
 };
 
@@ -193,10 +196,10 @@ app.post("/login", (req, res) => {
     return res.sendStatus(403);
   };
   if (user && user.password !== req.body.password) { // if user is found and password does NOT match
-    res.sendStatus(403);
+    return res.sendStatus(403);
   }
   res.cookie("user_id", user.id); // user is found and password does match, set the user_id cookie with their id
-  return res.redirect("/urls");
+  res.redirect("/urls");
 });
 
 app.post("/logout", (req, res) => {
