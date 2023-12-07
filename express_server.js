@@ -156,8 +156,13 @@ app.post("/logout", (req, res) => { // this route handles logout requests
 });
 
 app.post("/register", (req, res) => { // this route handles registeration requests
-  if (req.body.email === "" || req.body.password === "" || userLookupByEmail(req.body.email, users)) { // check if either email / password field is empty, or if user email already exist
-    return res.sendStatus(400);
+  if (userLookupByEmail(req.body.email, users)) {
+    res.status(403);
+    return res.send("An account with this email already exist");
+  }  
+  if (req.body.email === "" || req.body.password === "") {
+    res.status(403);
+    return res.send("Email or password field cannot be empty");
   }
   // create new user by generating a new ID and encrypt the password
   const id = generateRandomString(urlDatabase);
