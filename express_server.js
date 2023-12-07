@@ -138,11 +138,13 @@ app.post("/urls/:id", (req, res) => { // this route handles updating short urls.
 app.post("/login", (req, res) => { // this route handles login requests
   const user = userLookupByEmail(req.body.email, users);
   if (!user) { // if user is null (cannot be found)
-    return res.sendStatus(403);
+    res.status(403);
+    return res.send("Account does not exist");
   }
   const passwordMatch = bcrypt.compareSync(req.body.password, user.password);
   if (user && !passwordMatch) { // if user is found and password does NOT match
-    return res.sendStatus(403);
+    res.status(403);
+    return res.send("Invalid password");
   }
   req.session.user_id = user.id; // user is found and password does match, set the user_id cookie with their id
   res.redirect("/urls");
