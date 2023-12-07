@@ -19,35 +19,35 @@ const users = {
   }
 };
 
-const generateRandomString = () => {
+const generateRandomString = (urlDB) => {
   const id = Math.random().toString(20).substr(2, 6);
-  if (urlDatabase[id]) {
-    return generateRandomString();
+  if (urlDB[id]) {
+    return generateRandomString(urlDB);
   }
   return id;
 };
 
-const userLookup = (email) => {
-  for (user in users) {
-    if (users[user].email === email) {
-      return users[user];
+const userLookupByEmail = (email, userDB) => {
+  for (user in userDB) {
+    if (userDB[user].email === email) {
+      return userDB[user];
     }
   }
   return null;
 };
 
-const urlsForUser = (id) => {
+const urlsForUser = (id, urlDB) => {
   let list = {};
-  for (entry in urlDatabase) {
-    if (urlDatabase[entry].userID === id) {
-      list[entry] = urlDatabase[entry];
+  for (entry in urlDB) {
+    if (urlDB[entry].userID === id) {
+      list[entry] = urlDB[entry];
     }
   }
   return list;
 };
 
-const matchUrlIdUserId = (req) => {
-  if (urlDatabase[req.params.id].userID === req.session.user_id) {
+const matchUrlIdUserId = (req, urlDB) => {
+  if (urlDB[req.params.id].userID === req.session.user_id) {
     return true;
   }
   return false;
@@ -104,7 +104,7 @@ app.get("/urls", (req, res) => {
   if (!id) {
     return sendNotLoggedIn(res);
   };
-  const list = urlsForUser(id);
+  const list = urlsForUser(id, urlDatabase);
   const templateVars = { urls: list, user: users[id] };
   res.render("urls_index", templateVars);
 });
@@ -163,7 +163,7 @@ app.post("/urls", (req, res) => {
   if (!user_id) {
     return sendNotLoggedIn(res);
   };
-  id = generateRandomString();2
+  id = generateRandomString(urlDatabase);
   urlDatabase[id] = { longURL: req.body.longURL, userID: user_id };
   res.redirect(`/urls/${id}`);
 });
@@ -175,7 +175,7 @@ app.post("/urls/:id/delete", (req, res) => {
   if (!urlDatabase[req.params.id]) {
     return sendShortURLNotExist(res);
   }
-  if (!matchUrlIdUserId(req)) {
+  if (!matchUrlIdUserId(req, urlDatabase)) {
     return sendUnauthorized(res);
   }
   delete urlDatabase[req.params.id];
@@ -189,7 +189,7 @@ app.post("/urls/:id", (req, res) => {
   if (!urlDatabase[req.params.id]) {
     return sendShortURLNotExist(res);
   }
-  if (!matchUrlIdUserId(req)) {
+  if (!matchUrlIdUserId(req, urlDatabase)) {
     return sendUnauthorized(res);
   }
   urlDatabase[req.params.id].longURL = req.body.longURL;
@@ -197,7 +197,7 @@ app.post("/urls/:id", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  user = userLookup(req.body.email);
+  user = userLookupByEmail(req.body.email, users);
   if (!user) { // if user is null (cannot be found)
     return res.sendStatus(403);
   };
@@ -215,10 +215,10 @@ app.post("/logout", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
-  if (req.body.email === "" || req.body.password === "" || userLookup(req.body.email)) {
+  if (req.body.email === "" || req.body.password === "" || userLookupByEmail(req.body.email, users)) {
     return res.sendStatus(400);
   };
-  id = generateRandomString();
+  id = generateRandomString(urlDatabase);
   const hashedPassword = bcrypt.hashSync(req.body.password, 10);
   users[id] = { id, email: req.body.email, password: hashedPassword };
   req.session.user_id = id;
