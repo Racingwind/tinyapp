@@ -10,7 +10,7 @@ const urlDatabase = {
   "9sm5xK": { longURL: "http://www.google.com", userID: "dw9Uv3" }
 };
 
-hashPassword = bcrypt.hashSync("123", 10);
+const hashPassword = bcrypt.hashSync("123", 10);
 
 const users = {
   "dw9Uv3": {
@@ -42,20 +42,11 @@ app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b> World</b></body></html>\n");
 });
 
-app.get("/set", (req, res) => {
-  const a = 1;
-  res.send(`a = ${a}`);
-});
-
-app.get("/fetch", (req, res) => {
-  res.send(`a = ${a}`);
-});
-
 app.get("/urls", (req, res) => {
   const id = req.session.user_id;
   if (!id) {
     return sendNotLoggedIn(res);
-  };
+  }
   const list = urlsForUser(id, urlDatabase);
   const templateVars = { urls: list, user: users[id] };
   res.render("urls_index", templateVars);
@@ -65,7 +56,7 @@ app.get("/urls/new", (req, res) => {
   const id = req.session.user_id;
   if (!id) {
     return res.redirect("/login");
-  };
+  }
   const templateVars = { user: users[id] };
   res.render("urls_new", templateVars);
 });
@@ -94,9 +85,9 @@ app.get("/u/:id", (req, res) => {
 
 app.get("/register", (req, res) => {
   const id = req.session.user_id;
-  if (id) { 
+  if (id) {
     return res.redirect("/urls");
-  };
+  }
   const templateVars = { user: users[id] };
   res.render("register", templateVars);
 });
@@ -104,8 +95,8 @@ app.get("/register", (req, res) => {
 app.get("/login", (req, res) => {
   const id = req.session.user_id;
   if (id) {
-   return res.redirect("/urls");
-  };
+    return res.redirect("/urls");
+  }
   const templateVars = { user: users[id] };
   res.render("login", templateVars);
 });
@@ -114,8 +105,8 @@ app.post("/urls", (req, res) => {
   const user_id = req.session.user_id;
   if (!user_id) {
     return sendNotLoggedIn(res);
-  };
-  id = generateRandomString(urlDatabase);
+  }
+  const id = generateRandomString(urlDatabase);
   urlDatabase[id] = { longURL: req.body.longURL, userID: user_id };
   res.redirect(`/urls/${id}`);
 });
@@ -123,7 +114,7 @@ app.post("/urls", (req, res) => {
 app.post("/urls/:id/delete", (req, res) => {
   if (!req.session.user_id) {
     return sendNotLoggedIn(res);
-  }  
+  }
   if (!urlDatabase[req.params.id]) {
     return sendShortURLNotExist(res);
   }
@@ -149,10 +140,10 @@ app.post("/urls/:id", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  user = userLookupByEmail(req.body.email, users);
+  const user = userLookupByEmail(req.body.email, users);
   if (!user) { // if user is null (cannot be found)
     return res.sendStatus(403);
-  };
+  }
   const passwordMatch = bcrypt.compareSync(req.body.password, user.password);
   if (user && !passwordMatch) { // if user is found and password does NOT match
     return res.sendStatus(403);
@@ -169,8 +160,8 @@ app.post("/logout", (req, res) => {
 app.post("/register", (req, res) => {
   if (req.body.email === "" || req.body.password === "" || userLookupByEmail(req.body.email, users)) {
     return res.sendStatus(400);
-  };
-  id = generateRandomString(urlDatabase);
+  }
+  const id = generateRandomString(urlDatabase);
   const hashedPassword = bcrypt.hashSync(req.body.password, 10);
   users[id] = { id, email: req.body.email, password: hashedPassword };
   req.session.user_id = id;
