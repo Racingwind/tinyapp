@@ -31,10 +31,13 @@ app.use(cookieSession({
 }));
 
 app.get("/", (req, res) => {
+  if (req.session.user_id) {
+    return res.redirect("/urls");
+  }
   res.redirect("/login");
 });
 
-app.get("/urls", (req, res) => {
+app.get("/urls", (req, res) => { // shows a list of urls that has user id matching to logged in user
   const id = req.session.user_id;
   if (!id) {
     return sendNotLoggedIn(res);
@@ -44,7 +47,7 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
-app.get("/urls/new", (req, res) => {
+app.get("/urls/new", (req, res) => { // shows a form to enter data for creating new short url
   const id = req.session.user_id;
   if (!id) {
     return res.redirect("/login");
@@ -53,7 +56,7 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new", templateVars);
 });
 
-app.get("/urls/:id", (req, res) => {
+app.get("/urls/:id", (req, res) => { // show a page with specified short url if its user id matches to logged in user
   const user_id = req.session.user_id;
   if (!user_id) {
     return sendNotLoggedIn(res);
@@ -68,7 +71,7 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-app.get("/u/:id", (req, res) => {
+app.get("/u/:id", (req, res) => { // redirects to the long url the shorthand represents
   if (!urlDatabase[req.params.id]) {
     return sendShortURLNotExist(res);
   }
