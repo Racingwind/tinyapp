@@ -31,15 +31,7 @@ app.use(cookieSession({
 }));
 
 app.get("/", (req, res) => {
-  res.send("Hello!");
-});
-
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
-
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b> World</b></body></html>\n");
+  res.redirect("/login");
 });
 
 app.get("/urls", (req, res) => {
@@ -101,31 +93,32 @@ app.get("/login", (req, res) => {
   res.render("login", templateVars);
 });
 
-app.post("/urls", (req, res) => {
+app.post("/urls", (req, res) => { // this route handles creating new short urls
   const user_id = req.session.user_id;
   if (!user_id) {
     return sendNotLoggedIn(res);
   }
+  // create new short url entry by generating an unique id
   const id = generateRandomString(urlDatabase);
   urlDatabase[id] = { longURL: req.body.longURL, userID: user_id };
   res.redirect(`/urls/${id}`);
 });
 
-app.post("/urls/:id/delete", (req, res) => {
-  if (!req.session.user_id) {
+app.post("/urls/:id/delete", (req, res) => { // this route handles deleting short urls
+  if (!req.session.user_id) { // user not logged in
     return sendNotLoggedIn(res);
   }
-  if (!urlDatabase[req.params.id]) {
+  if (!urlDatabase[req.params.id]) { // short url id not found
     return sendShortURLNotExist(res);
   }
-  if (!matchUrlIdUserId(req, urlDatabase)) {
+  if (!matchUrlIdUserId(req, urlDatabase)) { // short url user id not match user id
     return sendUnauthorized(res);
   }
   delete urlDatabase[req.params.id];
   res.redirect("/urls");
 });
 
-app.post("/urls/:id", (req, res) => {
+app.post("/urls/:id", (req, res) => { // this route handles updating short urls.
   if (!req.session.user_id) {
     return sendNotLoggedIn(res);
   }
@@ -139,7 +132,7 @@ app.post("/urls/:id", (req, res) => {
   res.redirect("/urls");
 });
 
-app.post("/login", (req, res) => {
+app.post("/login", (req, res) => { // this route handles login requests
   const user = userLookupByEmail(req.body.email, users);
   if (!user) { // if user is null (cannot be found)
     return res.sendStatus(403);
@@ -152,15 +145,16 @@ app.post("/login", (req, res) => {
   res.redirect("/urls");
 });
 
-app.post("/logout", (req, res) => {
-  req.session = null;
+app.post("/logout", (req, res) => { // this route handles logout requests
+  req.session = null; // removes user id cookie
   res.redirect("/login");
 });
 
-app.post("/register", (req, res) => {
-  if (req.body.email === "" || req.body.password === "" || userLookupByEmail(req.body.email, users)) {
+app.post("/register", (req, res) => { // this route handles registeration requests
+  if (req.body.email === "" || req.body.password === "" || userLookupByEmail(req.body.email, users)) { // check if either email / password field is empty, or if user email already exist
     return res.sendStatus(400);
   }
+  // create new user by generating a new ID and encrypt the password
   const id = generateRandomString(urlDatabase);
   const hashedPassword = bcrypt.hashSync(req.body.password, 10);
   users[id] = { id, email: req.body.email, password: hashedPassword };
