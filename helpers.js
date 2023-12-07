@@ -7,7 +7,7 @@ const generateRandomString = (urlDB) => {
 };
 
 const userLookupByEmail = (email, userDB) => {
-  for (user in userDB) {
+  for (const user in userDB) {
     if (userDB[user].email === email) {
       return userDB[user];
     }
@@ -17,7 +17,7 @@ const userLookupByEmail = (email, userDB) => {
 
 const urlsForUser = (id, urlDB) => {
   let list = {};
-  for (entry in urlDB) {
+  for (const entry in urlDB) {
     if (urlDB[entry].userID === id) {
       list[entry] = urlDB[entry];
     }
